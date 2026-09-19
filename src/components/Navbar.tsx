@@ -18,7 +18,7 @@ import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   currentView: 'landing' | 'studio' | 'rehearsal' | 'cue_cards' | 'auth';
-  onNavigate: (view: 'landing' | 'studio' | 'rehearsal' | 'cue_cards' | 'auth') => void;
+  onNavigate: (view: 'landing' | 'studio' | 'rehearsal' | 'cue_cards' | 'auth', authMode?: 'signin' | 'signup' | 'otp') => void;
   onOpenQuestionnaire: () => void;
   onOpenSavedProjects: () => void;
   onOpenSettings: () => void;

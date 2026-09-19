@@ -23,7 +23,72 @@ export interface VerifyOtpResponse {
   attemptsRemaining?: number;
 }
 
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+  };
+  field?: string;
+  code?: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: AuthUser;
+}
+
 const API_BASE = '/api';
+
+export async function registerApi(payload: RegisterPayload): Promise<RegisterResponse> {
+  const response = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    const error: any = new Error(data.message || 'Registration failed.');
+    error.field = data.field;
+    error.code = data.code;
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+export async function loginApi(payload: LoginPayload): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    const error: any = new Error(data.message || 'Sign in failed.');
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
 
 export async function sendOtpApi(payload: { email: string; password?: string; name?: string }): Promise<SendOtpResponse> {
   const response = await fetch(`${API_BASE}/auth/send-otp`, {

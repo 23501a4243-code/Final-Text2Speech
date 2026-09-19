@@ -1,0 +1,510 @@
+{
+  "users": {
+    "evaluator@hackathon.test": {
+      "id": "test_1",
+      "email": "evaluator@hackathon.test",
+      "name": "Judge",
+      "createdAt": "2026-09-19T06:31:45.727Z",
+      "lastLoginAt": "2026-09-19T06:31:45.728Z",
+      "verified": true
+    },
+    "23501a4203@pvpsit.ac.in": {
+      "id": "usr_13ec2ec6afdc4798",
+      "email": "23501a4203@pvpsit.ac.in",
+      "name": "manasa",
+      "passwordHash": "$2b$10$gaysKdDOhkryHN23DbcGCuzLgNWf2JTunuzqkKCETv883i0iCYnoC",
+      "createdAt": "2026-09-19T07:48:32.142Z",
+      "lastLoginAt": "2026-09-19T07:48:32.142Z",
+      "verified": true
+    },
+    "manasa3082311@gmail.com": {
+      "id": "usr_63502a91122595c5",
+      "email": "manasa3082311@gmail.com",
+      "name": "x",
+      "passwordHash": "$2b$10$A.dIfGHZfPTmCTYflGEEOurxHbUcHHPAnJUBXR5rQksHv1yEAnlHi",
+      "createdAt": "2026-09-19T07:49:53.360Z",
+      "lastLoginAt": "2026-09-19T07:49:53.360Z",
+      "verified": true
+    },
+    "test_1789806098252@example.com": {
+      "id": "usr_test_123",
+      "email": "test_1789806098252@example.com",
+      "name": "Judge Evaluator",
+      "verified": true,
+      "createdAt": "2026-09-19T08:21:38.252Z",
+      "lastLoginAt": "2026-09-19T08:21:38.253Z"
+    },
+    "update_1789806098255@example.com": {
+      "id": "usr_update_456",
+      "email": "update_1789806098255@example.com",
+      "name": "Updated Name",
+      "verified": true,
+      "createdAt": "2026-09-19T08:21:38.255Z",
+      "lastLoginAt": "2026-09-19T08:21:38.255Z"
+    },
+    "speaker_1789806099935@example.com": {
+      "id": "usr_bd5ec101ba9bd3e1",
+      "email": "speaker_1789806099935@example.com",
+      "name": "Eleanor Vance",
+      "passwordHash": "$2b$10$ipb8LNrJ.Bwi1PPQy88aju1htFNRTro0JrlOzFcyTUYP5pYkjYzI.",
+      "createdAt": "2026-09-19T08:21:40.006Z",
+      "lastLoginAt": "2026-09-19T08:21:40.006Z",
+      "verified": true
+    },
+    "existing_1789806100074@example.com": {
+      "id": "usr_dup_123",
+      "email": "existing_1789806100074@example.com",
+      "name": "Existing Speaker",
+      "passwordHash": "$2b$10$mIfxE37CKbbp3nT5qYXXFemY1OnOOwe7SiNYU9W3JImOI2xdgjeju",
+      "createdAt": "2026-09-19T08:21:40.136Z",
+      "lastLoginAt": "2026-09-19T08:21:40.136Z",
+      "verified": true
+    },
+    "signin_test_1789806100138@example.com": {
+      "id": "usr_6347bc88e6386f92",
+      "email": "signin_test_1789806100138@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$Ji1gDo5wUAKeTtYhMszAJOY2X6ZAAT.jaFrSR86mHrAHEgXM3Ao4y",
+      "createdAt": "2026-09-19T08:21:40.205Z",
+      "lastLoginAt": "2026-09-19T08:21:40.272Z",
+      "verified": true
+    },
+    "wrong_pass_1789806100277@example.com": {
+      "id": "usr_d48536200af28486",
+      "email": "wrong_pass_1789806100277@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$BBzkpIXC4U3Bka.sHiwnaupQ3uHwmoMb6xlDNvXna1lkM7JTfYlQO",
+      "createdAt": "2026-09-19T08:21:40.340Z",
+      "lastLoginAt": "2026-09-19T08:21:40.341Z",
+      "verified": true
+    },
+    "test_1789806129988@example.com": {
+      "id": "usr_test_123",
+      "email": "test_1789806129988@example.com",
+      "name": "Judge Evaluator",
+      "verified": true,
+      "createdAt": "2026-09-19T08:22:09.988Z",
+      "lastLoginAt": "2026-09-19T08:22:09.988Z"
+    },
+    "update_1789806130001@example.com": {
+      "id": "usr_update_456",
+      "email": "update_1789806130001@example.com",
+      "name": "Updated Name",
+      "verified": true,
+      "createdAt": "2026-09-19T08:22:10.001Z",
+      "lastLoginAt": "2026-09-19T08:22:10.001Z"
+    },
+    "speaker_1789806130144@example.com": {
+      "id": "usr_2e9540fc0bd29614",
+      "email": "speaker_1789806130144@example.com",
+      "name": "Eleanor Vance",
+      "passwordHash": "$2b$10$tzcBqLosyse0yeLMAkyhauUC4RSRr.S5Id5iDVkJ/Pu6KD62MTXcu",
+      "createdAt": "2026-09-19T08:22:10.219Z",
+      "lastLoginAt": "2026-09-19T08:22:10.219Z",
+      "verified": true
+    },
+    "existing_1789806130286@example.com": {
+      "id": "usr_dup_123",
+      "email": "existing_1789806130286@example.com",
+      "name": "Existing Speaker",
+      "passwordHash": "$2b$10$NoNZMbMGPAKnIQzN7BhvUOOGn2xa5of9R7xRG1pr25Wp03200qTiC",
+      "createdAt": "2026-09-19T08:22:10.355Z",
+      "lastLoginAt": "2026-09-19T08:22:10.355Z",
+      "verified": true
+    },
+    "signin_test_1789806130357@example.com": {
+      "id": "usr_b629bacdf7212658",
+      "email": "signin_test_1789806130357@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$xDbsY4IjiLbw/Vr4MpchT.X1u927G6AO68w1OKqCgpZqg6FyJpKcC",
+      "createdAt": "2026-09-19T08:22:10.422Z",
+      "lastLoginAt": "2026-09-19T08:22:10.486Z",
+      "verified": true
+    },
+    "wrong_pass_1789806130489@example.com": {
+      "id": "usr_5b2ca6062deac4b8",
+      "email": "wrong_pass_1789806130489@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$pG1CGu8X2aMfMSA7WJuGZ.hDhWY7PYxQVnLMSjsDSuVPKVq8hAxnS",
+      "createdAt": "2026-09-19T08:22:10.553Z",
+      "lastLoginAt": "2026-09-19T08:22:10.553Z",
+      "verified": true
+    },
+    "e2e_user_1789806131891@example.com": {
+      "id": "usr_50ff2baf1c7647ff",
+      "email": "e2e_user_1789806131891@example.com",
+      "name": "Jane Doe",
+      "passwordHash": "$2b$10$68rdWBgMj07/A2dMsT/Mcu2mGotnEkv7GIqQIPouKzFb1IF0IXgc6",
+      "createdAt": "2026-09-19T08:22:11.966Z",
+      "lastLoginAt": "2026-09-19T08:22:11.966Z",
+      "verified": true
+    },
+    "dup_check_1789806131967@example.com": {
+      "id": "usr_0bf910ed02d62ece",
+      "email": "dup_check_1789806131967@example.com",
+      "name": "First User",
+      "passwordHash": "$2b$10$Pr6Sf6VwrlV3KzvhjLm25eRhVNORWdbizzuYczLwmyik2DDSn3O8i",
+      "createdAt": "2026-09-19T08:22:12.033Z",
+      "lastLoginAt": "2026-09-19T08:22:12.033Z",
+      "verified": true
+    },
+    "login_test_1789806132036@example.com": {
+      "id": "usr_241619ac69e13b9f",
+      "email": "login_test_1789806132036@example.com",
+      "name": "Login User",
+      "passwordHash": "$2b$10$TUkVz.G.fl1qcl.6EyDuOel0Dzj4fDehS99e8RRbKADHfrfdkczzy",
+      "createdAt": "2026-09-19T08:22:12.102Z",
+      "lastLoginAt": "2026-09-19T08:22:12.102Z",
+      "verified": true
+    },
+    "test_1789806149879@example.com": {
+      "id": "usr_test_1789806149879",
+      "email": "test_1789806149879@example.com",
+      "name": "Judge Evaluator",
+      "verified": true,
+      "createdAt": "2026-09-19T08:22:29.879Z",
+      "lastLoginAt": "2026-09-19T08:22:29.879Z"
+    },
+    "update_1789806149881@example.com": {
+      "id": "usr_update_456",
+      "email": "update_1789806149881@example.com",
+      "name": "Updated Name",
+      "verified": true,
+      "createdAt": "2026-09-19T08:22:29.881Z",
+      "lastLoginAt": "2026-09-19T08:22:29.881Z"
+    },
+    "speaker_1789806150049@example.com": {
+      "id": "usr_bfb79653a1b7204f",
+      "email": "speaker_1789806150049@example.com",
+      "name": "Eleanor Vance",
+      "passwordHash": "$2b$10$V04/a3Qbi5p7vphw9aUS8.hkKWc5sZVNyqiEw7jT5ap6YF62e/nqm",
+      "createdAt": "2026-09-19T08:22:30.127Z",
+      "lastLoginAt": "2026-09-19T08:22:30.127Z",
+      "verified": true
+    },
+    "existing_1789806150203@example.com": {
+      "id": "usr_dup_123",
+      "email": "existing_1789806150203@example.com",
+      "name": "Existing Speaker",
+      "passwordHash": "$2b$10$Cw8ZjWtGmv9zIn0frjt2n.sQK2xP5ifJbX8bWpwoXXXX01gvHRC7a",
+      "createdAt": "2026-09-19T08:22:30.268Z",
+      "lastLoginAt": "2026-09-19T08:22:30.268Z",
+      "verified": true
+    },
+    "signin_test_1789806150270@example.com": {
+      "id": "usr_be3f18b0136c8a99",
+      "email": "signin_test_1789806150270@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$1g8ss8n5D9O2.adSpFn7weaHWUa3SN0HM3xWNatSmFKz7wkjHd6ba",
+      "createdAt": "2026-09-19T08:22:30.337Z",
+      "lastLoginAt": "2026-09-19T08:22:30.403Z",
+      "verified": true
+    },
+    "wrong_pass_1789806150405@example.com": {
+      "id": "usr_77e1e4b04c22e53d",
+      "email": "wrong_pass_1789806150405@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$zWuzKB71VpRROy4GD6XXLugPq7asVq.wIYxVWoiI70OLCVIVKO7M6",
+      "createdAt": "2026-09-19T08:22:30.468Z",
+      "lastLoginAt": "2026-09-19T08:22:30.468Z",
+      "verified": true
+    }
+  },
+  "otps": {
+    "23501a4203@pvpsit.ac.in": {
+      "otp": "874313",
+      "expiresAt": 1789804680574,
+      "resendAvailableAt": 1789804140574,
+      "attemptsRemaining": 5,
+      "used": true,
+      "passwordHash": "$2b$10$gaysKdDOhkryHN23DbcGCuzLgNWf2JTunuzqkKCETv883i0iCYnoC",
+      "name": "manasa",
+      "createdAt": 1789804080574,
+      "email": "23501a4203@pvpsit.ac.in"
+    },
+    "manasa3082311@gmail.com": {
+      "otp": "424573",
+      "expiresAt": 1789804835151,
+      "resendAvailableAt": 1789804295151,
+      "attemptsRemaining": 5,
+      "used": false,
+      "passwordHash": "$2b$10$Xj8VwQEiPaMcyIczkglWq.V88xuct/WRyIC967nasdq5/Zz5ZFKl6",
+      "name": "x",
+      "createdAt": 1789804235151,
+      "email": "manasa3082311@gmail.com"
+    }
+  },
+  "rateLimits": {
+    "23501a4203@pvpsit.ac.in_497167": 1,
+    "manasa3082311@gmail.com_497167": 2,
+    "rate_key_1789806098258": 2,
+    "rate_key_1789806130007": 2,
+    "rate_key_1789806149883": 2
+  },
+  "speeches": {
+    "proj-1789794778737": {
+      "id": "proj-1789794778737",
+      "title": "Grandma Peggy - Milestone Birthday Roast & Toast",
+      "speechType": "birthday_roast",
+      "tone": "funny",
+      "length": "medium",
+      "answers": {
+        "recipientName": "Grandma Peggy",
+        "speakerRole": "Grandson",
+        "relationship": "Grandson and lifelong pupil of her kitchen wisdom",
+        "storiesAnecdotes": "Sitting on her front porch learning how to water her hydrangea bushes; how she never allowed anyone to leave her house hungry.",
+        "admiredQualities": "Unconditional love, gentle patience, and her unwavering moral compass.",
+        "quirksInsideJokes": "Her secret apple pie recipe that had half a cup more butter than she ever admitted.",
+        "wishesClosingThought": "May her kindness live on through every act of generosity we show one another.",
+        "audienceContext": "Memorial service with extended family and community members"
+      },
+      "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Grandma Peggy.\n\nAs Grandson and lifelong pupil of her kitchen wisdom, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Sitting on her front porch learning how to water her hydrangea bushes; how she never allowed anyone to leave her house hungry..\n\nOf course, no celebration would be complete without acknowledging Her secret apple pie recipe that had half a cup more butter than she ever admitted.. What I have always admired most about Grandma Peggy is their undeniable character: Unconditional love, gentle patience, and her unwavering moral compass.. In a world that moves so fast, they are someone who grounds everyone around them with sincerity, strength, and unmistakable warmth.\n\nLooking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.\n\nMay her kindness live on through every act of generosity we show one another.\n\nPlease join me in raising our glasses and our hearts in tribute to Grandma Peggy. To life, to friendship, and to every bright chapter still to come. Cheers!",
+      "drafts": [
+        {
+          "id": "draft-1789794778737",
+          "tone": "funny",
+          "length": "medium",
+          "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Grandma Peggy.\n\nAs Grandson and lifelong pupil of her kitchen wisdom, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Sitting on her front porch learning how to water her hydrangea bushes; how she never allowed anyone to leave her house hungry..\n\nOf course, no celebration would be complete without acknowledging Her secret apple pie recipe that had half a cup more butter than she ever admitted.. What I have always admired most about Grandma Peggy is their undeniable character: Unconditional love, gentle patience, and her unwavering moral compass.. In a world that moves so fast, they are someone who grounds everyone around them with sincerity, strength, and unmistakable warmth.\n\nLooking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.\n\nMay her kindness live on through every act of generosity we show one another.\n\nPlease join me in raising our glasses and our hearts in tribute to Grandma Peggy. To life, to friendship, and to every bright chapter still to come. Cheers!",
+          "createdAt": 1789794778737
+        }
+      ],
+      "activeDraftIndex": 0,
+      "cueCards": [
+        {
+          "cardIndex": 1,
+          "stageCue": "[PAUSE - TAKE A DEEP BREATH & SMILE]",
+          "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Grandma Peggy.",
+          "timingEstimate": "0:00 - 0:45",
+          "keyTip": "Sweep the room with your eyes, establish warm connection."
+        },
+        {
+          "cardIndex": 2,
+          "stageCue": "[PAUSE FOR LAUGHTER / REACTION]",
+          "content": "As Grandson and lifelong pupil of her kitchen wisdom, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Sitting on her front porch learning how ...",
+          "timingEstimate": "0:45 - 1:30",
+          "keyTip": "Deliver the humorous line with confidence and wait for the room to respond."
+        },
+        {
+          "cardIndex": 3,
+          "stageCue": "[SLOW DOWN - SINCERE & HEARTFELT]",
+          "content": "Of course, no celebration would be complete without acknowledging Her secret apple pie recipe that had half a cup more butter than she ever admitted.. What I have always admired most about Grandma Peggy is their undeniab...",
+          "timingEstimate": "1:30 - 2:15",
+          "keyTip": "Lower your vocal pitch slightly to draw the audience in emotionally."
+        },
+        {
+          "cardIndex": 4,
+          "stageCue": "[DIRECT EYE CONTACT WITH HONOREE]",
+          "content": "Looking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.",
+          "timingEstimate": "2:15 - 3:00",
+          "keyTip": "Speak these words directly to the recipient, not to the paper."
+        },
+        {
+          "cardIndex": 5,
+          "stageCue": "[RAISE GLASS HIGH - LOOK AT CROWD]",
+          "content": "May her kindness live on through every act of generosity we show one another.",
+          "timingEstimate": "3:00 - 4:45",
+          "keyTip": "Stand tall, raise your glass proudly, and lead the final cheer."
+        }
+      ],
+      "wordCount": 216,
+      "estimatedMinutes": 1.7,
+      "createdAt": 1789794778737,
+      "updatedAt": 1789804113237,
+      "versions": [
+        {
+          "id": "ver-initial-proj-1789794778737",
+          "timestamp": 1789794778737,
+          "label": "Initial Speech Draft",
+          "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Grandma Peggy.\n\nAs Grandson and lifelong pupil of her kitchen wisdom, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Sitting on her front porch learning how to water her hydrangea bushes; how she never allowed anyone to leave her house hungry..\n\nOf course, no celebration would be complete without acknowledging Her secret apple pie recipe that had half a cup more butter than she ever admitted.. What I have always admired most about Grandma Peggy is their undeniable character: Unconditional love, gentle patience, and her unwavering moral compass.. In a world that moves so fast, they are someone who grounds everyone around them with sincerity, strength, and unmistakable warmth.\n\nLooking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.\n\nMay her kindness live on through every act of generosity we show one another.\n\nPlease join me in raising our glasses and our hearts in tribute to Grandma Peggy. To life, to friendship, and to every bright chapter still to come. Cheers!",
+          "wordCount": 216,
+          "tone": "funny",
+          "length": "medium",
+          "author": "ai",
+          "changesSummary": "Initial generated speech"
+        }
+      ],
+      "userId": "usr_13ec2ec6afdc4798"
+    },
+    "proj-1789804211916": {
+      "id": "proj-1789804211916",
+      "title": "Emma & Liam - Maid of Honor Speech",
+      "speechType": "maid_of_honor",
+      "tone": "heartfelt",
+      "length": "medium",
+      "answers": {
+        "recipientName": "Emma & Liam",
+        "speakerRole": "Maid of Honor",
+        "relationship": "Sisters and lifelong confidantes",
+        "storiesAnecdotes": "Building pillow forts dreaming about dream weddings; Liam driving 3 hours in a midnight blizzard to deliver Emma's forgotten passport before her flight.",
+        "admiredQualities": "Emma's giant heart, how she cries at dog commercials, and how Liam cherishes her with quiet reverence.",
+        "quirksInsideJokes": "Her inability to whistle; secret love of 90s boybands.",
+        "wishesClosingThought": "May you always choose each other every morning, and may your kitchen be filled with music and laughter.",
+        "audienceContext": "Intimate country estate wedding"
+      },
+      "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Emma & Liam.\n\nAs Sisters and lifelong confidantes, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Building pillow forts dreaming about dream weddings; Liam driving 3 hours in a midnight blizzard to deliver Emma's forgotten passport before her flight..\n\nOf course, no celebration would be complete without acknowledging Her inability to whistle; secret love of 90s boybands.. What I have always admired most about Emma & Liam is their undeniable character: Emma's giant heart, how she cries at dog commercials, and how Liam cherishes her with quiet reverence.. In a world that moves so fast, they are someone who grounds everyone around them with sincerity, strength, and unmistakable warmth.\n\nLooking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.\n\nMay you always choose each other every morning, and may your kitchen be filled with music and laughter.\n\nPlease join me in raising our glasses and our hearts in tribute to Emma & Liam. To life, to friendship, and to every bright chapter still to come. Cheers!",
+      "drafts": [
+        {
+          "id": "draft-1789804211916",
+          "tone": "heartfelt",
+          "length": "medium",
+          "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Emma & Liam.\n\nAs Sisters and lifelong confidantes, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Building pillow forts dreaming about dream weddings; Liam driving 3 hours in a midnight blizzard to deliver Emma's forgotten passport before her flight..\n\nOf course, no celebration would be complete without acknowledging Her inability to whistle; secret love of 90s boybands.. What I have always admired most about Emma & Liam is their undeniable character: Emma's giant heart, how she cries at dog commercials, and how Liam cherishes her with quiet reverence.. In a world that moves so fast, they are someone who grounds everyone around them with sincerity, strength, and unmistakable warmth.\n\nLooking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.\n\nMay you always choose each other every morning, and may your kitchen be filled with music and laughter.\n\nPlease join me in raising our glasses and our hearts in tribute to Emma & Liam. To life, to friendship, and to every bright chapter still to come. Cheers!",
+          "createdAt": 1789804211916
+        }
+      ],
+      "activeDraftIndex": 0,
+      "cueCards": [
+        {
+          "cardIndex": 1,
+          "stageCue": "[PAUSE - TAKE A DEEP BREATH & SMILE]",
+          "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Emma & Liam.",
+          "timingEstimate": "0:00 - 0:45",
+          "keyTip": "Sweep the room with your eyes, establish warm connection."
+        },
+        {
+          "cardIndex": 2,
+          "stageCue": "[PAUSE FOR LAUGHTER / REACTION]",
+          "content": "As Sisters and lifelong confidantes, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Building pillow forts dreaming about dream weddings; Liam...",
+          "timingEstimate": "0:45 - 1:30",
+          "keyTip": "Deliver the humorous line with confidence and wait for the room to respond."
+        },
+        {
+          "cardIndex": 3,
+          "stageCue": "[SLOW DOWN - SINCERE & HEARTFELT]",
+          "content": "Of course, no celebration would be complete without acknowledging Her inability to whistle; secret love of 90s boybands.. What I have always admired most about Emma & Liam is their undeniable character: Emma's giant hear...",
+          "timingEstimate": "1:30 - 2:15",
+          "keyTip": "Lower your vocal pitch slightly to draw the audience in emotionally."
+        },
+        {
+          "cardIndex": 4,
+          "stageCue": "[DIRECT EYE CONTACT WITH HONOREE]",
+          "content": "Looking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.",
+          "timingEstimate": "2:15 - 3:00",
+          "keyTip": "Speak these words directly to the recipient, not to the paper."
+        },
+        {
+          "cardIndex": 5,
+          "stageCue": "[RAISE GLASS HIGH - LOOK AT CROWD]",
+          "content": "May you always choose each other every morning, and may your kitchen be filled with music and laughter.",
+          "timingEstimate": "3:00 - 4:45",
+          "keyTip": "Stand tall, raise your glass proudly, and lead the final cheer."
+        }
+      ],
+      "wordCount": 221,
+      "estimatedMinutes": 1.7,
+      "createdAt": 1789804211916,
+      "updatedAt": 1789804211950,
+      "versions": [
+        {
+          "id": "ver-initial-proj-1789804211916",
+          "timestamp": 1789804211916,
+          "label": "Initial Speech Draft",
+          "content": "Good evening everyone. It is a genuine honor to speak today on behalf of Emma & Liam.\n\nAs Sisters and lifelong confidantes, I've had the distinct joy of sharing countless chapters together. To truly understand who they are, you only have to look at: Building pillow forts dreaming about dream weddings; Liam driving 3 hours in a midnight blizzard to deliver Emma's forgotten passport before her flight..\n\nOf course, no celebration would be complete without acknowledging Her inability to whistle; secret love of 90s boybands.. What I have always admired most about Emma & Liam is their undeniable character: Emma's giant heart, how she cries at dog commercials, and how Liam cherishes her with quiet reverence.. In a world that moves so fast, they are someone who grounds everyone around them with sincerity, strength, and unmistakable warmth.\n\nLooking around this room today, you see a testament to the immense impact one remarkable life can have. Every story shared, every smile exchanged is a reflection of the love they have poured into all of us.\n\nMay you always choose each other every morning, and may your kitchen be filled with music and laughter.\n\nPlease join me in raising our glasses and our hearts in tribute to Emma & Liam. To life, to friendship, and to every bright chapter still to come. Cheers!",
+          "wordCount": 221,
+          "tone": "heartfelt",
+          "length": "medium",
+          "author": "ai",
+          "changesSummary": "Initial generated speech"
+        }
+      ],
+      "userId": "usr_63502a91122595c5"
+    },
+    "speech_persist_1789806098244": {
+      "id": "speech_persist_1789806098244",
+      "title": "Jack's Best Man Speech",
+      "speechType": "best_man",
+      "tone": "funny",
+      "length": "medium",
+      "content": "Good evening everyone, Dave is my best friend...",
+      "wordCount": 120,
+      "estimatedMinutes": 0.9,
+      "createdAt": 1789806098258,
+      "updatedAt": 1789806098258
+    },
+    "speech_persist_1789806129979": {
+      "id": "speech_persist_1789806129979",
+      "title": "Jack's Best Man Speech",
+      "speechType": "best_man",
+      "tone": "funny",
+      "length": "medium",
+      "content": "Good evening everyone, Dave is my best friend...",
+      "wordCount": 120,
+      "estimatedMinutes": 0.9,
+      "createdAt": 1789806130008,
+      "updatedAt": 1789806130008
+    },
+    "speech_persist_1789806149872": {
+      "id": "speech_persist_1789806149872",
+      "title": "Jack's Best Man Speech",
+      "speechType": "best_man",
+      "tone": "funny",
+      "length": "medium",
+      "content": "Good evening everyone, Dave is my best friend...",
+      "wordCount": 120,
+      "estimatedMinutes": 0.9,
+      "createdAt": 1789806149884,
+      "updatedAt": 1789806149884
+    }
+  },
+  "speechVersions": {
+    "speech_persist_1789806098244": [
+      {
+        "id": "ver_1_1789806098259",
+        "timestamp": 1789806097259,
+        "label": "Initial Draft",
+        "content": "Draft 1 content",
+        "wordCount": 50,
+        "author": "ai",
+        "speechId": "speech_persist_1789806098244"
+      },
+      {
+        "id": "ver_2_1789806098259",
+        "timestamp": 1789806098259,
+        "label": "Manual Edit: Polished Toast",
+        "content": "Draft 2 updated content with new toast",
+        "wordCount": 65,
+        "author": "user",
+        "speechId": "speech_persist_1789806098244"
+      }
+    ],
+    "speech_persist_1789806129979": [
+      {
+        "id": "ver_1_1789806130009",
+        "timestamp": 1789806129009,
+        "label": "Initial Draft",
+        "content": "Draft 1 content",
+        "wordCount": 50,
+        "author": "ai",
+        "speechId": "speech_persist_1789806129979"
+      },
+      {
+        "id": "ver_2_1789806130009",
+        "timestamp": 1789806130009,
+        "label": "Manual Edit: Polished Toast",
+        "content": "Draft 2 updated content with new toast",
+        "wordCount": 65,
+        "author": "user",
+        "speechId": "speech_persist_1789806129979"
+      }
+    ],
+    "speech_persist_1789806149872": [
+      {
+        "id": "ver_1_1789806149884",
+        "timestamp": 1789806148884,
+        "label": "Initial Draft",
+        "content": "Draft 1 content",
+        "wordCount": 50,
+        "author": "ai",
+        "speechId": "speech_persist_1789806149872"
+      },
+      {
+        "id": "ver_2_1789806149884",
+        "timestamp": 1789806149884,
+        "label": "Manual Edit: Polished Toast",
+        "content": "Draft 2 updated content with new toast",
+        "wordCount": 65,
+        "author": "user",
+        "speechId": "speech_persist_1789806149872"
+      }
+    ]
+  }
+}

@@ -13,15 +13,16 @@ import { AuthPage } from './components/Auth/AuthPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DEMO_SCENARIOS } from './data/demoScenarios';
 import { SpeechProject } from './types/speech';
-import { checkServerHealth } from './services/api';
+import { checkServerHealth, saveSpeechApi, deleteSpeechApi, fetchSpeechesApi } from './services/api';
 
 const STORAGE_KEY_PROJECTS = 'toastcraft_projects_v1';
 const STORAGE_KEY_ACTIVE_ID = 'toastcraft_active_id_v1';
 const STORAGE_KEY_API_KEY = 'toastcraft_api_key_v1';
 
 function AppContent() {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, token, isLoading: isAuthLoading } = useAuth();
   const [currentView, setCurrentView] = useState<'landing' | 'studio' | 'rehearsal' | 'cue_cards' | 'auth'>('landing');
+  const [authInitialMode, setAuthInitialMode] = useState<'signin' | 'signup' | 'otp'>('signin');
   const [savedProjects, setSavedProjects] = useState<SpeechProject[]>([]);
   const [activeProject, setActiveProject] = useState<SpeechProject>(DEMO_SCENARIOS[0].project);
   
@@ -70,20 +71,55 @@ function AppContent() {
     });
   }, []);
 
+  // Sync with persistent backend database when authenticated
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchSpeechesApi(token).then((remoteSpeeches) => {
+        if (Array.isArray(remoteSpeeches) && remoteSpeeches.length > 0) {
+          setSavedProjects((prev) => {
+            const remoteIds = new Set(remoteSpeeches.map(s => s.id));
+            const merged = [...remoteSpeeches, ...prev.filter(p => !remoteIds.has(p.id))];
+            localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(merged));
+            return merged;
+          });
+        }
+      }).catch(() => {});
+    }
+  }, [isAuthenticated, token]);
+
   const initDefaultProjects = () => {
-    const demos = DEMO_SCENARIOS.map(d => d.project);
+    const demos = DEMO_SCENARIOS.map(d => ({
+      ...d.project,
+      versions: d.project.versions || [
+        {
+          id: 'ver-demo-' + d.id,
+          timestamp: d.project.createdAt || Date.now(),
+          label: 'Initial Demo Script',
+          content: d.project.content,
+          wordCount: d.project.wordCount,
+          tone: d.project.tone,
+          length: d.project.length,
+          author: 'ai' as const,
+          changesSummary: 'Curated hackathon sample scenario',
+        }
+      ]
+    }));
     setSavedProjects(demos);
     setActiveProject(demos[0]);
     localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(demos));
     localStorage.setItem(STORAGE_KEY_ACTIVE_ID, demos[0].id);
   };
 
-  // Sync projects to localStorage
+  // Sync projects to localStorage and persistent database
   const saveProjectsToStorage = (projects: SpeechProject[], activeId?: string) => {
     setSavedProjects(projects);
     localStorage.setItem(STORAGE_KEY_PROJECTS, JSON.stringify(projects));
     if (activeId) {
       localStorage.setItem(STORAGE_KEY_ACTIVE_ID, activeId);
+      const target = projects.find(p => p.id === activeId);
+      if (target) {
+        saveSpeechApi(target, token || undefined).catch(() => {});
+      }
     }
   };
 
@@ -108,6 +144,7 @@ function AppContent() {
 
   const handleDeleteProject = (id: string) => {
     const filtered = savedProjects.filter(p => p.id !== id);
+    deleteSpeechApi(id, token || undefined).catch(() => {});
     if (filtered.length === 0) {
       initDefaultProjects();
       return;
@@ -138,10 +175,17 @@ function AppContent() {
   };
 
   // Protected route navigation guard
-  const handleNavigate = (view: 'landing' | 'studio' | 'rehearsal' | 'cue_cards' | 'auth') => {
+  const handleNavigate = (
+    view: 'landing' | 'studio' | 'rehearsal' | 'cue_cards' | 'auth', 
+    authMode: 'signin' | 'signup' | 'otp' = 'signin'
+  ) => {
     if (['studio', 'rehearsal', 'cue_cards'].includes(view) && !isAuthenticated) {
+      setAuthInitialMode('signin');
       setCurrentView('auth');
       return;
+    }
+    if (view === 'auth') {
+      setAuthInitialMode(authMode);
     }
     setCurrentView(view);
   };
@@ -155,6 +199,7 @@ function AppContent() {
         onNavigate={handleNavigate}
         onOpenQuestionnaire={() => {
           if (!isAuthenticated) {
+            setAuthInitialMode('signin');
             setCurrentView('auth');
           } else {
             setIsQuestionnaireOpen(true);
@@ -174,6 +219,7 @@ function AppContent() {
           <LandingPage
             onStartSpeech={() => {
               if (!isAuthenticated) {
+                setAuthInitialMode('signin');
                 setCurrentView('auth');
               } else {
                 setIsQuestionnaireOpen(true);
@@ -185,6 +231,7 @@ function AppContent() {
 
         {currentView === 'auth' && (
           <AuthPage
+            initialMode={authInitialMode}
             onSuccess={() => setCurrentView('studio')}
             onCancel={() => setCurrentView('landing')}
           />

@@ -103,6 +103,23 @@ This runs both the backend Express server (port `5000`) and the Vite client (por
 
 Open your browser to: **`http://localhost:5173`**
 
+### 4. Run Automated Test Suites
+```bash
+npm test
+```
+Executes comprehensive unit & integration test suites using Vitest:
+- **Delivery Analyzer**: tests pacing metrics, WPM calculation, sentiment lexicons, and speech-type coaching.
+- **Prompt Builders**: tests generation, tone rewriting, length adjustment, and stage cue card prompt construction.
+- **Database & Auth**: tests user creation, secure OTP verification, attempts countdown, and version history persistence.
+
+---
+
+## 🗄️ Database Architecture
+ToastCraft AI includes a unified multi-engine storage layer:
+- **PostgreSQL**: Set `DATABASE_URL` in `.env` to connect to remote or local Postgres.
+- **MongoDB**: Set `MONGODB_URI` in `.env` to connect to MongoDB.
+- **Embedded Persistent Database** (Default): Automatically stores data in `server/data/toastcraft_db.json`. Zero setup required for local judge evaluations—data persists across complete server restarts!
+
 ---
 
 ## 📁 Project Structure

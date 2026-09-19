@@ -56,6 +56,18 @@ export interface CueCard {
   keyTip?: string;
 }
 
+export interface SpeechVersion {
+  id: string;
+  timestamp: number;
+  label: string; // e.g., "Initial Generation", "Tone: Funny", "Manual Edit", "Rehearsal Checkpoint"
+  content: string;
+  wordCount: number;
+  tone: SpeechTone;
+  length: SpeechLength;
+  author: 'user' | 'ai';
+  changesSummary?: string;
+}
+
 export interface SpeechProject {
   id: string;
   title: string;
@@ -72,6 +84,7 @@ export interface SpeechProject {
     createdAt: number;
   }[];
   activeDraftIndex: number;
+  versions?: SpeechVersion[];
   cueCards: CueCard[];
   wordCount: number;
   estimatedMinutes: number;

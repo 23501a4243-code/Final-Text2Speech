@@ -1,4 +1,4 @@
-import { SpeechType, SpeechTone, SpeechLength, SpeechAnswers, CueCard } from '../types/speech';
+import { SpeechType, SpeechTone, SpeechLength, SpeechAnswers, CueCard, SpeechProject, SpeechVersion } from '../types/speech';
 
 export interface GenerateSpeechResponse {
   success: boolean;
@@ -249,3 +249,94 @@ function fallbackLengthAdjustment(params: any): GenerateSpeechResponse {
     estimatedMinutes: Math.round((words.length / 130) * 10) / 10,
   };
 }
+
+// -----------------------------------------------------------------
+// Persistent Database APIs (Speech Projects & Version History)
+// -----------------------------------------------------------------
+
+export async function fetchSpeechesApi(token?: string): Promise<SpeechProject[]> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/speeches`, { headers });
+    if (!res.ok) throw new Error('Failed to fetch speeches from database');
+    const data = await res.json();
+    return data.speeches || [];
+  } catch (err: any) {
+    console.warn('Backend fetchSpeeches failed, using local storage fallback:', err.message);
+    return [];
+  }
+}
+
+export async function saveSpeechApi(speech: SpeechProject, token?: string): Promise<SpeechProject | null> {
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/speeches`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(speech),
+    });
+
+    if (!res.ok) throw new Error('Failed to save speech to database');
+    const data = await res.json();
+    return data.speech || null;
+  } catch (err: any) {
+    console.warn('Backend saveSpeech failed, relying on local storage fallback:', err.message);
+    return null;
+  }
+}
+
+export async function deleteSpeechApi(id: string, token?: string): Promise<boolean> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/speeches/${id}`, {
+      method: 'DELETE',
+      headers,
+    });
+    return res.ok;
+  } catch (err: any) {
+    console.warn('Backend deleteSpeech failed:', err.message);
+    return false;
+  }
+}
+
+export async function saveVersionApi(speechId: string, version: Partial<SpeechVersion>, token?: string): Promise<SpeechVersion | null> {
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/speeches/${speechId}/versions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(version),
+    });
+
+    if (!res.ok) throw new Error('Failed to save version snapshot');
+    const data = await res.json();
+    return data.version || null;
+  } catch (err: any) {
+    console.warn('Backend saveVersion failed:', err.message);
+    return null;
+  }
+}
+
+export async function fetchVersionsApi(speechId: string, token?: string): Promise<SpeechVersion[]> {
+  try {
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/speeches/${speechId}/versions`, { headers });
+    if (!res.ok) throw new Error('Failed to fetch versions');
+    const data = await res.json();
+    return data.versions || [];
+  } catch (err: any) {
+    console.warn('Backend fetchVersions failed:', err.message);
+    return [];
+  }
+}
+

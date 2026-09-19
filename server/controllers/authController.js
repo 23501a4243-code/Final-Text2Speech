@@ -2,17 +2,9 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { sendOtpEmail } from '../services/emailService.js';
+import { db } from '../db/database.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'toastcraft_super_secret_jwt_key_2026_dev_mode';
-
-// In-memory store for OTP requests: email -> { otp, expiresAt, resendAvailableAt, attemptsRemaining, used, passwordHash, name }
-const otpStore = new Map();
-
-// In-memory store for registered users: email -> { id, email, name, passwordHash, createdAt, lastLoginAt, verified }
-const usersStore = new Map();
-
-// Hourly request rate limiting store: email -> count
-const hourlyRateLimit = new Map();
 
 /**
  * Validate email format
@@ -22,15 +14,12 @@ function isValidEmail(email) {
 }
 
 /**
- * Clean up expired OTPs every 15 minutes
+ * Clean up expired OTPs every 15 minutes using persistent db
  */
 setInterval(() => {
-  const now = Date.now();
-  for (const [email, record] of otpStore.entries()) {
-    if (now > record.expiresAt + 3600000) {
-      otpStore.delete(email);
-    }
-  }
+  db.cleanupExpiredOtps(3600000).catch(err => {
+    console.warn('Background OTP cleanup error:', err.message);
+  });
 }, 15 * 60 * 1000);
 
 /**
@@ -50,8 +39,8 @@ export async function sendOtp(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check resend cooldown
-    const existing = otpStore.get(normalizedEmail);
+    // Check resend cooldown in persistent DB
+    const existing = await db.getOtp(normalizedEmail);
     const now = Date.now();
 
     if (existing && !existing.used && now < existing.resendAvailableAt) {
@@ -65,14 +54,14 @@ export async function sendOtp(req, res) {
 
     // Check hourly limit (max 10 OTP requests per hour per email)
     const hourKey = `${normalizedEmail}_${Math.floor(now / 3600000)}`;
-    const hourCount = hourlyRateLimit.get(hourKey) || 0;
+    const hourCount = await db.getRateLimit(hourKey);
     if (hourCount >= 10) {
       return res.status(429).json({
         success: false,
         message: 'Too many OTP requests for this email. Please try again in an hour.',
       });
     }
-    hourlyRateLimit.set(hourKey, hourCount + 1);
+    await db.incrementRateLimit(hourKey);
 
     // Optional password validation (if provided)
     let passwordHash = null;
@@ -95,7 +84,7 @@ export async function sendOtp(req, res) {
     const expiresAt = now + 10 * 60 * 1000;
     const resendAvailableAt = now + 60 * 1000;
 
-    otpStore.set(normalizedEmail, {
+    await db.setOtp(normalizedEmail, {
       otp,
       expiresAt,
       resendAvailableAt,
@@ -152,7 +141,7 @@ export async function verifyOtp(req, res) {
     const normalizedEmail = email.toLowerCase().trim();
     const cleanOtp = otp.toString().trim();
 
-    const record = otpStore.get(normalizedEmail);
+    const record = await db.getOtp(normalizedEmail);
 
     if (!record) {
       return res.status(400).json({
@@ -185,21 +174,22 @@ export async function verifyOtp(req, res) {
 
     // Secure string comparison
     if (record.otp !== cleanOtp) {
-      record.attemptsRemaining--;
+      const remaining = record.attemptsRemaining - 1;
+      await db.updateOtp(normalizedEmail, { attemptsRemaining: remaining });
       return res.status(400).json({
         success: false,
-        message: `Invalid verification code. ${record.attemptsRemaining} attempt${record.attemptsRemaining === 1 ? '' : 's'} remaining.`,
-        attemptsRemaining: record.attemptsRemaining,
+        message: `Invalid verification code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`,
+        attemptsRemaining: remaining,
       });
     }
 
-    // Mark as verified and used
-    record.used = true;
+    // Mark as verified and used in persistent storage
+    await db.updateOtp(normalizedEmail, { used: true });
 
-    // Create or update user account
-    let user = usersStore.get(normalizedEmail);
+    // Create or update user account in persistent storage
+    let user = await db.findUserByEmail(normalizedEmail);
     if (!user) {
-      user = {
+      user = await db.createUser({
         id: 'usr_' + crypto.randomBytes(8).toString('hex'),
         email: normalizedEmail,
         name: record.name || normalizedEmail.split('@')[0],
@@ -207,14 +197,13 @@ export async function verifyOtp(req, res) {
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
         verified: true,
-      };
-      usersStore.set(normalizedEmail, user);
+      });
     } else {
-      user.lastLoginAt = new Date().toISOString();
-      user.verified = true;
-      if (record.passwordHash) {
-        user.passwordHash = record.passwordHash;
-      }
+      user = await db.updateUser(normalizedEmail, {
+        lastLoginAt: new Date().toISOString(),
+        verified: true,
+        ...(record.passwordHash ? { passwordHash: record.passwordHash } : {}),
+      });
     }
 
     // Generate JWT session token (valid 7 days)
@@ -252,7 +241,7 @@ export async function verifyOtp(req, res) {
 
 /**
  * GET /api/auth/me
- * Retrieves current authenticated user session
+ * Retrieves current authenticated user session from persistent database
  */
 export async function getMe(req, res) {
   try {
@@ -267,9 +256,10 @@ export async function getMe(req, res) {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    const user = usersStore.get(decoded.email);
+    // Fetch user from persistent database
+    const user = await db.findUserByEmail(decoded.email);
     if (!user) {
-      // In case server restarted, trust decoded JWT payload
+      // In case user record not found, fallback to decoded JWT
       return res.json({
         success: true,
         user: {
@@ -310,3 +300,182 @@ export async function logout(req, res) {
     message: 'Logged out successfully.',
   });
 }
+
+/**
+ * POST /api/auth/register
+ * Direct user registration with full name, email, and password
+ */
+export async function register(req, res) {
+  try {
+    const { name, email, password, confirmPassword } = req.body;
+
+    // Validate name
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        field: 'name',
+        message: 'Full Name cannot be empty.',
+      });
+    }
+
+    if (name.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        field: 'name',
+        message: 'Full Name must be at least 2 characters long.',
+      });
+    }
+
+    // Validate email
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        field: 'email',
+        message: 'Please provide a valid email address.',
+      });
+    }
+
+    // Validate password
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        field: 'password',
+        message: 'Password must be at least 6 characters long.',
+      });
+    }
+
+    // Validate confirmPassword if provided
+    if (confirmPassword !== undefined && confirmPassword !== null && confirmPassword !== password) {
+      return res.status(400).json({
+        success: false,
+        field: 'confirmPassword',
+        message: 'Confirm Password must match Password.',
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if user already exists
+    const existingUser = await db.findUserByEmail(normalizedEmail);
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        code: 'USER_EXISTS',
+        message: 'User already exists. Please sign in.',
+      });
+    }
+
+    // Securely hash password with bcrypt (salt rounds: 10)
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Create user in persistent database
+    const newUser = await db.createUser({
+      id: 'usr_' + crypto.randomBytes(8).toString('hex'),
+      email: normalizedEmail,
+      name: name.trim(),
+      passwordHash,
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+      verified: true,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Account created successfully! Please sign in.',
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+      },
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create account. Please try again.',
+    });
+  }
+}
+
+/**
+ * POST /api/auth/login
+ * Authenticates user credentials and issues JWT session token
+ */
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide both email and password.',
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Lookup user in persistent database
+    const user = await db.findUserByEmail(normalizedEmail);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
+    }
+
+    // Check if user has a password set
+    if (!user.passwordHash) {
+      return res.status(401).json({
+        success: false,
+        message: 'This account was registered via Email OTP. Please sign in using verification code.',
+      });
+    }
+
+    // Secure bcrypt comparison
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
+    }
+
+    // Update lastLoginAt
+    const updated = await db.updateUser(normalizedEmail, {
+      lastLoginAt: new Date().toISOString(),
+    });
+
+    // Generate JWT session token (7 days)
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      success: true,
+      message: 'Signed in successfully! Welcome back.',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        verified: user.verified ?? true,
+        lastLoginAt: updated?.lastLoginAt || user.lastLoginAt,
+      },
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An internal error occurred during sign-in. Please try again.',
+    });
+  }
+}
+
