@@ -114,7 +114,7 @@ function generateEmailTemplate({ otp, appName = 'SpeechFlow AI', expirationMinut
 /**
  * Send OTP email via Resend API
  */
-async function sendViaResend(toEmail, otp) {
+async function sendViaResend(toEmail, otp, expirationMinutes = 10) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM || 'SpeechFlow AI <onboarding@resend.dev>';
 
@@ -128,8 +128,8 @@ async function sendViaResend(toEmail, otp) {
       from,
       to: [toEmail],
       subject: `Your ${otp} is your SpeechFlow AI verification code`,
-      html: generateEmailTemplate({ otp }),
-      text: `Your SpeechFlow AI verification code is: ${otp}. It expires in 10 minutes. Never share this code.`,
+      html: generateEmailTemplate({ otp, expirationMinutes }),
+      text: `Your SpeechFlow AI verification code is: ${otp}. It expires in ${expirationMinutes} minutes. Never share this code.`,
     }),
   });
 
@@ -144,7 +144,7 @@ async function sendViaResend(toEmail, otp) {
 /**
  * Send OTP email via SendGrid API
  */
-async function sendViaSendGrid(toEmail, otp) {
+async function sendViaSendGrid(toEmail, otp, expirationMinutes = 10) {
   const apiKey = process.env.SENDGRID_API_KEY;
   const from = process.env.EMAIL_FROM || 'no-reply@speechflow.ai';
 
@@ -161,7 +161,7 @@ async function sendViaSendGrid(toEmail, otp) {
       content: [
         {
           type: 'text/html',
-          value: generateEmailTemplate({ otp }),
+          value: generateEmailTemplate({ otp, expirationMinutes }),
         },
       ],
     }),
@@ -178,7 +178,7 @@ async function sendViaSendGrid(toEmail, otp) {
 /**
  * Send OTP email via SMTP (Gmail, Brevo, SendGrid SMTP, etc.)
  */
-async function sendViaSmtp(toEmail, otp) {
+async function sendViaSmtp(toEmail, otp, expirationMinutes = 10) {
   const user = process.env.SMTP_USER ? process.env.SMTP_USER.trim() : '';
   const pass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : '';
   const host = process.env.SMTP_HOST ? process.env.SMTP_HOST.trim() : (user.endsWith('@gmail.com') ? 'smtp.gmail.com' : '');
@@ -206,8 +206,8 @@ async function sendViaSmtp(toEmail, otp) {
     from,
     to: toEmail,
     subject: `Your ${otp} is your SpeechFlow AI verification code`,
-    html: generateEmailTemplate({ otp }),
-    text: `Your SpeechFlow AI verification code is: ${otp}. It expires in 10 minutes. Never share this code.`,
+    html: generateEmailTemplate({ otp, expirationMinutes }),
+    text: `Your SpeechFlow AI verification code is: ${otp}. It expires in ${expirationMinutes} minutes. Never share this code.`,
   });
 
   return { provider: 'smtp', messageId: info.messageId };
@@ -216,23 +216,23 @@ async function sendViaSmtp(toEmail, otp) {
 /**
  * Dispatch OTP email using the available configured provider
  */
-export async function sendOtpEmail({ email, otp }) {
+export async function sendOtpEmail({ email, otp, expirationMinutes = 10 }) {
   // 1. Check Resend
   if (process.env.RESEND_API_KEY) {
     console.log(`📧 Dispatching OTP via Resend API to: ${email}`);
-    return await sendViaResend(email, otp);
+    return await sendViaResend(email, otp, expirationMinutes);
   }
 
   // 2. Check SendGrid
   if (process.env.SENDGRID_API_KEY) {
     console.log(`📧 Dispatching OTP via SendGrid API to: ${email}`);
-    return await sendViaSendGrid(email, otp);
+    return await sendViaSendGrid(email, otp, expirationMinutes);
   }
 
   // 3. Check SMTP / Gmail
   if ((process.env.SMTP_HOST || process.env.SMTP_USER?.includes('@gmail.com')) && process.env.SMTP_USER && process.env.SMTP_PASS) {
     console.log(`📧 Dispatching OTP via SMTP to: ${email}`);
-    return await sendViaSmtp(email, otp);
+    return await sendViaSmtp(email, otp, expirationMinutes);
   }
 
   // 4. Development/Demo Fallback: Nodemailer Ethereal Test Account
@@ -254,8 +254,8 @@ export async function sendOtpEmail({ email, otp }) {
       from: '"SpeechFlow AI" <no-reply@speechflow.ai>',
       to: email,
       subject: `Your ${otp} is your SpeechFlow AI verification code`,
-      html: generateEmailTemplate({ otp }),
-      text: `Your SpeechFlow AI verification code is: ${otp}. It expires in 10 minutes.`,
+      html: generateEmailTemplate({ otp, expirationMinutes }),
+      text: `Your SpeechFlow AI verification code is: ${otp}. It expires in ${expirationMinutes} minutes.`,
     });
 
     const previewUrl = nodemailer.getTestMessageUrl(info);

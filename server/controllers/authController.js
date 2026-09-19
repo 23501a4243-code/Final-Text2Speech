@@ -28,16 +28,50 @@ setInterval(() => {
  */
 export async function sendOtp(req, res) {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, purpose } = req.body;
+
+    // 'signup' = new account registration OTP, 'login' = pre-existing passwordless OTP sign-in.
+    // Defaults to 'login' so existing behaviour is untouched.
+    const otpPurpose = purpose === 'signup' ? 'signup' : 'login';
 
     if (!email || !isValidEmail(email)) {
       return res.status(400).json({ 
         success: false, 
+        field: 'email',
         message: 'Please provide a valid email address.' 
       });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+
+    // --- Registration-only validation & duplicate account guard ---
+    if (otpPurpose === 'signup') {
+      if (!name || typeof name !== 'string' || name.trim().length < 2) {
+        return res.status(400).json({
+          success: false,
+          field: 'name',
+          message: 'Full Name must be at least 2 characters long.',
+        });
+      }
+
+      if (!password || password.length < 6) {
+        return res.status(400).json({
+          success: false,
+          field: 'password',
+          message: 'Password must be at least 6 characters long.',
+        });
+      }
+
+      // Never send a registration OTP to an address that already has an account
+      const existingUser = await db.findUserByEmail(normalizedEmail);
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          code: 'USER_EXISTS',
+          message: 'User already exists. Please sign in.',
+        });
+      }
+    }
 
     // Check resend cooldown in persistent DB
     const existing = await db.getOtp(normalizedEmail);
@@ -80,8 +114,10 @@ export async function sendOtp(req, res) {
     const otpNumber = crypto.randomInt(100000, 1000000);
     const otp = otpNumber.toString();
 
-    // Set TTL: 10 minutes expiry, 60 seconds resend cooldown, 5 attempts max
-    const expiresAt = now + 10 * 60 * 1000;
+    // Set TTL: signup codes expire in 5 minutes, login codes keep the original 10.
+    // 60 seconds resend cooldown, 5 attempts max.
+    const expiresInMinutes = otpPurpose === 'signup' ? 5 : 10;
+    const expiresAt = now + expiresInMinutes * 60 * 1000;
     const resendAvailableAt = now + 60 * 1000;
 
     await db.setOtp(normalizedEmail, {
@@ -91,27 +127,35 @@ export async function sendOtp(req, res) {
       attemptsRemaining: 5,
       used: false,
       passwordHash,
-      name: name || normalizedEmail.split('@')[0],
+      name: (name && name.trim()) || normalizedEmail.split('@')[0],
       createdAt: now,
+      purpose: otpPurpose,
     });
 
     // Send real email
     const emailResult = await sendOtpEmail({
       email: normalizedEmail,
       otp,
+      expirationMinutes: expiresInMinutes,
     });
 
-    console.log(`\n======================================================`);
-    console.log(`🔑 [OTP DISPATCH] 6-Digit Code for ${normalizedEmail}: >>> ${otp} <<<`);
-    console.log(`======================================================\n`);
+    // Never log real verification codes outside local development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`\n======================================================`);
+      console.log(`🔑 [OTP DISPATCH] 6-Digit Code for ${normalizedEmail}: >>> ${otp} <<<`);
+      console.log(`======================================================\n`);
+    } else {
+      console.log(`[OTP DISPATCH] Verification code sent (purpose: ${otpPurpose}).`);
+    }
 
     return res.json({
       success: true,
       message: 'Verification code sent successfully to ' + normalizedEmail,
       cooldownSeconds: 60,
-      expiresInMinutes: 10,
+      expiresInMinutes,
       email: normalizedEmail,
       deliveryProvider: emailResult.provider,
+      purpose: otpPurpose,
     });
 
   } catch (error) {
@@ -186,6 +230,58 @@ export async function verifyOtp(req, res) {
     // Mark as verified and used in persistent storage
     await db.updateOtp(normalizedEmail, { used: true });
 
+    // -----------------------------------------------------------------
+    // SIGN UP / REGISTRATION FLOW
+    // A signup OTP completes account creation. It never issues a session;
+    // the user continues into the existing Sign In flow, exactly like the
+    // direct /api/auth/register endpoint behaves.
+    // -----------------------------------------------------------------
+    if (record.purpose === 'signup') {
+      const alreadyExists = await db.findUserByEmail(normalizedEmail);
+      if (alreadyExists) {
+        await db.deleteOtp(normalizedEmail);
+        return res.status(409).json({
+          success: false,
+          code: 'USER_EXISTS',
+          message: 'User already exists. Please sign in.',
+        });
+      }
+
+      if (!record.passwordHash) {
+        return res.status(400).json({
+          success: false,
+          message: 'Registration details are missing. Please start sign up again.',
+        });
+      }
+
+      const newUser = await db.createUser({
+        id: 'usr_' + crypto.randomBytes(8).toString('hex'),
+        email: normalizedEmail,
+        name: record.name || normalizedEmail.split('@')[0],
+        passwordHash: record.passwordHash,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+        verified: true,
+      });
+
+      // Invalidate the code immediately after successful registration
+      await db.deleteOtp(normalizedEmail);
+
+      return res.status(201).json({
+        success: true,
+        registered: true,
+        message: 'Account created successfully! Please sign in.',
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+        },
+      });
+    }
+
+    // -----------------------------------------------------------------
+    // EXISTING PASSWORDLESS OTP SIGN-IN FLOW (unchanged)
+    // -----------------------------------------------------------------
     // Create or update user account in persistent storage
     let user = await db.findUserByEmail(normalizedEmail);
     if (!user) {

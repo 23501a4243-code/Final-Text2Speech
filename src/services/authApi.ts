@@ -13,6 +13,7 @@ export interface SendOtpResponse {
   expiresInMinutes?: number;
   email?: string;
   deliveryProvider?: string;
+  purpose?: 'signup' | 'login';
 }
 
 export interface VerifyOtpResponse {
@@ -21,6 +22,8 @@ export interface VerifyOtpResponse {
   token?: string;
   user?: AuthUser;
   attemptsRemaining?: number;
+  /** True when a Sign Up OTP completed and the account was created. No session token is issued. */
+  registered?: boolean;
 }
 
 export interface RegisterPayload {
@@ -90,7 +93,13 @@ export async function loginApi(payload: LoginPayload): Promise<LoginResponse> {
   return data;
 }
 
-export async function sendOtpApi(payload: { email: string; password?: string; name?: string }): Promise<SendOtpResponse> {
+export async function sendOtpApi(payload: {
+  email: string;
+  password?: string;
+  name?: string;
+  /** 'signup' triggers registration OTP (rejects existing accounts). Omit for the existing OTP sign-in. */
+  purpose?: 'signup' | 'login';
+}): Promise<SendOtpResponse> {
   const response = await fetch(`${API_BASE}/auth/send-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -99,12 +108,17 @@ export async function sendOtpApi(payload: { email: string; password?: string; na
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.message || 'Failed to send OTP.');
+    const error: any = new Error(data.message || 'Failed to send OTP.');
+    error.code = data.code;
+    error.field = data.field;
+    error.status = response.status;
+    error.cooldownRemaining = data.cooldownRemaining;
+    throw error;
   }
   return data;
 }
 
-export async function verifyOtpApi(payload: { email: string; otp: string }): Promise<VerifyOtpResponse> {
+export async function verifyOtpApi(payload: { email: string; otp: string; purpose?: 'signup' | 'login' }): Promise<VerifyOtpResponse> {
   const response = await fetch(`${API_BASE}/auth/verify-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -115,6 +129,8 @@ export async function verifyOtpApi(payload: { email: string; otp: string }): Pro
   if (!response.ok) {
     const error: any = new Error(data.message || 'Verification failed.');
     error.attemptsRemaining = data.attemptsRemaining;
+    error.code = data.code;
+    error.status = response.status;
     throw error;
   }
   return data;

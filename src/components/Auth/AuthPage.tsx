@@ -49,6 +49,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   // OTP Sub-Step: 'email' or 'otp' (only used when mode === 'otp')
   const [otpStep, setOtpStep] = useState<'email' | 'otp'>('email');
 
+  // Sign Up Sub-Step: 'form' (details) or 'otp' (email verification)
+  const [signupStep, setSignupStep] = useState<'form' | 'otp'>('form');
+
   // Shared / Sign In Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -88,6 +91,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     type: 'success' | 'error' | 'info';
     text: string;
     isExistingUser?: boolean;
+    isRegistered?: boolean;
   } | null>(null);
 
   // Resend Cooldown Countdown for OTP
@@ -106,7 +110,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   // Expiry Countdown for OTP
   useEffect(() => {
     let interval: any = null;
-    if (mode === 'otp' && otpStep === 'otp' && otpExpirySeconds > 0) {
+    const isVerifying =
+      (mode === 'otp' && otpStep === 'otp') || (mode === 'signup' && signupStep === 'otp');
+    if (isVerifying && otpExpirySeconds > 0) {
       interval = setInterval(() => {
         setOtpExpirySeconds((prev) => {
           if (prev <= 1) {
@@ -123,7 +129,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [mode, otpStep, otpExpirySeconds]);
+  }, [mode, otpStep, signupStep, otpExpirySeconds]);
 
   // Format timer into MM:SS
   const formatTimer = (totalSeconds: number) => {
@@ -141,6 +147,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({
     if (newMode !== 'otp') {
       setOtpStep('email');
     }
+    if (newMode !== 'signup') {
+      setSignupStep('form');
+    }
+    setOtpDigits(['', '', '', '', '', '']);
   };
 
   // Validate Sign Up Fields
@@ -246,33 +256,47 @@ export const AuthPage: React.FC<AuthPageProps> = ({
       return;
     }
 
+    // Step 1 of registration: dispatch a real 6-digit OTP to the entered email.
+    // The account is only created after the code is verified.
+    await dispatchSignupOtp(false);
+  };
+
+  // Send / Resend the Sign Up verification code
+  const dispatchSignupOtp = async (isResend: boolean) => {
+    if (isLoading) return;
+
     setIsLoading(true);
-    setLoadingText('Creating account...');
+    setLoadingText(isResend ? 'Resending OTP...' : 'Sending OTP...');
     setStatusMessage(null);
 
     try {
-      const response = await registerApi({
+      const response = await sendOtpApi({
         name: fullName.trim(),
         email: email.trim(),
         password: password,
-        confirmPassword: confirmPassword,
+        purpose: 'signup',
       });
 
       if (response.success) {
+        // A new code invalidates the previous one, so clear the boxes
+        setOtpDigits(['', '', '', '', '', '']);
+        setSignupStep('otp');
+        setResendCooldown(response.cooldownSeconds || 60);
+        setOtpExpirySeconds((response.expiresInMinutes || 5) * 60);
         setStatusMessage({
           type: 'success',
-          text: 'Account created successfully! Please sign in.',
+          text: isResend
+            ? 'OTP resent. Your previous code is no longer valid.'
+            : 'OTP sent successfully! Please check your inbox.',
         });
-        // Clear sensitive inputs
-        setPassword('');
-        setConfirmPassword('');
-        // Switch to signin mode with email retained
+
         setTimeout(() => {
-          setMode('signin');
-        }, 1200);
+          otpInputRefs.current[0]?.focus();
+        }, 100);
       }
     } catch (err: any) {
       if (err.code === 'USER_EXISTS' || err.status === 409) {
+        // Requirement: no OTP is sent for an already registered email
         setStatusMessage({
           type: 'error',
           text: 'User already exists. Please sign in.',
@@ -290,9 +314,75 @@ export const AuthPage: React.FC<AuthPageProps> = ({
       } else {
         setStatusMessage({
           type: 'error',
-          text: err.message || 'Failed to create account. Please try again.',
+          text: err.message || 'Failed to send OTP. Please try again.',
         });
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Step 2 of registration: verify the code and create the account
+  const handleVerifySignupOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (isLoading) return;
+
+    const enteredOtp = otpDigits.join('');
+    if (enteredOtp.length !== 6) {
+      setStatusMessage({ type: 'error', text: 'Please enter all 6 digits of the OTP.' });
+      return;
+    }
+
+    if (otpExpirySeconds <= 0) {
+      setStatusMessage({ type: 'error', text: 'OTP expired. Please resend a new code.' });
+      return;
+    }
+
+    setIsLoading(true);
+    setLoadingText('Verifying OTP...');
+    setStatusMessage(null);
+
+    try {
+      const response = await verifyOtpApi({
+        email: email.trim(),
+        otp: enteredOtp,
+        purpose: 'signup',
+      });
+
+      if (response.success) {
+        setStatusMessage({
+          type: 'success',
+          text: 'Registration successful! Your account has been created.',
+          isRegistered: true,
+        });
+
+        // Clear sensitive inputs
+        setPassword('');
+        setConfirmPassword('');
+        setOtpDigits(['', '', '', '', '', '']);
+
+        // Continue into the existing Sign In flow, email retained
+        setTimeout(() => {
+          setSignupStep('form');
+          setMode('signin');
+        }, 1400);
+      }
+    } catch (err: any) {
+      if (err.code === 'USER_EXISTS' || err.status === 409) {
+        setStatusMessage({
+          type: 'error',
+          text: 'User already exists. Please sign in.',
+          isExistingUser: true,
+        });
+        return;
+      }
+
+      const remaining = err.attemptsRemaining;
+      let msg = err.message || 'Invalid OTP.';
+      if (remaining === 0) {
+        msg = 'Too many attempts. This OTP has been invalidated. Please resend a new code.';
+      }
+      setStatusMessage({ type: 'error', text: msg });
     } finally {
       setIsLoading(false);
     }
@@ -553,7 +643,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
               )}
 
               {/* Requirement 3: New User Flow direct Sign In button after registration */}
-              {statusMessage.type === 'success' && mode === 'signup' && (
+              {statusMessage.type === 'success' && statusMessage.isRegistered && (
                 <div className="pt-1">
                   <button
                     type="button"
@@ -674,7 +764,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
           {/* ========================================================= */}
           {/* MODE 2: SIGN UP / REGISTRATION FORM                       */}
           {/* ========================================================= */}
-          {mode === 'signup' && (
+          {mode === 'signup' && signupStep === 'form' && (
             <form onSubmit={handleSignUp} className="space-y-3.5">
               
               {/* Field 1: Full Name */}
@@ -934,7 +1024,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                   </>
                 ) : (
                   <>
-                    <span>Create Account</span>
+                    <span>Send OTP</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -949,6 +1039,146 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                   className="font-bold text-purple-600 hover:text-purple-800 hover:underline"
                 >
                   Sign In
+                </button>
+              </div>
+
+            </form>
+          )}
+
+          {/* ========================================================= */}
+          {/* MODE 2b: SIGN UP EMAIL OTP VERIFICATION                   */}
+          {/* ========================================================= */}
+          {mode === 'signup' && signupStep === 'otp' && (
+            <form onSubmit={handleVerifySignupOtp} className="space-y-5">
+
+              {/* Destination email + change option */}
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-purple-50/70 border border-purple-100 text-xs">
+                <div className="flex items-center gap-2 truncate text-slate-700">
+                  <Mail className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                  <span className="truncate font-semibold">{email}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSignupStep('form');
+                    setStatusMessage(null);
+                    setOtpDigits(['', '', '', '', '', '']);
+                  }}
+                  className="text-purple-700 hover:text-purple-900 font-semibold underline shrink-0 text-xs ml-2"
+                >
+                  Change
+                </button>
+              </div>
+
+              {/* 6-digit OTP boxes */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5 text-center">
+                  Enter OTP
+                </label>
+                <div
+                  onPaste={handlePaste}
+                  className="flex items-center justify-center gap-2 sm:gap-2.5"
+                >
+                  {otpDigits.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      ref={(el) => (otpInputRefs.current[idx] = el)}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(idx, e)}
+                      className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-2xl font-bold font-mono rounded-xl border outline-none transition-all ${
+                        digit
+                          ? 'border-purple-600 bg-purple-50/40 text-purple-900 shadow-sm ring-2 ring-purple-500/20'
+                          : 'border-slate-200 bg-slate-50/80 text-slate-800 focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="mt-2.5 text-center text-[11px] text-slate-500 font-medium">
+                  OTP sent to your email
+                </p>
+              </div>
+
+              {/* Expiry timer + resend */}
+              <div className="flex items-center justify-between text-xs px-1">
+                <div className="flex items-center gap-1.5 text-slate-500 font-medium">
+                  <Clock className="w-3.5 h-3.5 text-purple-600" />
+                  <span>
+                    Expires in: <strong className={otpExpirySeconds < 60 ? 'text-rose-600' : 'text-slate-800'}>{formatTimer(otpExpirySeconds)}</strong>
+                  </span>
+                </div>
+
+                <div>
+                  {resendCooldown > 0 ? (
+                    <span className="text-slate-400">
+                      Resend in {resendCooldown}s
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => dispatchSignupOtp(true)}
+                      className="text-purple-700 hover:text-purple-900 font-bold flex items-center gap-1 hover:underline"
+                    >
+                      <RotateCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+                      <span>Resend OTP</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Verify OTP */}
+              <button
+                type="submit"
+                disabled={isLoading || otpDigits.some((d) => !d) || otpExpirySeconds <= 0}
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-md shadow-purple-600/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{loadingText}</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Verify OTP</span>
+                  </>
+                )}
+              </button>
+
+              {/* Didn't receive the OTP? */}
+              <div className="text-center text-[11px] text-slate-500">
+                <span>Didn't receive the OTP? </span>
+                {resendCooldown > 0 ? (
+                  <span className="text-slate-400 font-semibold">Wait {resendCooldown}s</span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => dispatchSignupOtp(true)}
+                    className="font-bold text-purple-600 hover:text-purple-800 hover:underline"
+                  >
+                    Resend OTP
+                  </button>
+                )}
+              </div>
+
+              <div className="text-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSignupStep('form');
+                    setStatusMessage(null);
+                    setOtpDigits(['', '', '', '', '', '']);
+                  }}
+                  className="text-xs text-slate-500 hover:text-purple-700 inline-flex items-center gap-1 font-medium transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Sign Up details</span>
                 </button>
               </div>
 

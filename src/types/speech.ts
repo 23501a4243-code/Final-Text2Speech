@@ -1,12 +1,16 @@
 export type SpeechType = 
   | 'best_man' 
   | 'maid_of_honor' 
+  | 'parent_wedding'
   | 'groom_bride_toast' 
+  | 'anniversary'
+  | 'graduation'
+  | 'award'
+  | 'baby_shower'
   | 'retirement' 
   | 'eulogy' 
   | 'farewell' 
-  | 'birthday_roast' 
-  | 'anniversary';
+  | 'birthday_roast';
 
 export type SpeechTone = 'funny' | 'heartfelt' | 'formal' | 'balanced';
 

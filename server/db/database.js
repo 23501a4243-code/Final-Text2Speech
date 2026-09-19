@@ -165,8 +165,12 @@ class ToastCraftDatabase {
         used BOOLEAN DEFAULT FALSE,
         password_hash TEXT,
         name VARCHAR(255),
-        created_at BIGINT NOT NULL
+        created_at BIGINT NOT NULL,
+        purpose VARCHAR(16) DEFAULT 'login'
       );
+
+      -- Backward-compatible migration for databases created before Sign Up OTP
+      ALTER TABLE otps ADD COLUMN IF NOT EXISTS purpose VARCHAR(16) DEFAULT 'login';
 
       CREATE TABLE IF NOT EXISTS rate_limits (
         key VARCHAR(255) PRIMARY KEY,
@@ -356,6 +360,7 @@ class ToastCraftDatabase {
         passwordHash: r.password_hash,
         name: r.name,
         createdAt: Number(r.created_at),
+        purpose: r.purpose || 'login',
       };
     }
 
@@ -373,8 +378,8 @@ class ToastCraftDatabase {
 
     if (this.engine === 'postgresql') {
       await this.pgPool.query(
-        `INSERT INTO otps (email, otp, expires_at, resend_available_at, attempts_remaining, used, password_hash, name, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `INSERT INTO otps (email, otp, expires_at, resend_available_at, attempts_remaining, used, password_hash, name, created_at, purpose)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (email) DO UPDATE SET
            otp = EXCLUDED.otp,
            expires_at = EXCLUDED.expires_at,
@@ -383,7 +388,8 @@ class ToastCraftDatabase {
            used = EXCLUDED.used,
            password_hash = EXCLUDED.password_hash,
            name = EXCLUDED.name,
-           created_at = EXCLUDED.created_at`,
+           created_at = EXCLUDED.created_at,
+           purpose = EXCLUDED.purpose`,
         [
           normalized,
           data.otp,
@@ -394,6 +400,7 @@ class ToastCraftDatabase {
           data.passwordHash || null,
           data.name || null,
           data.createdAt,
+          data.purpose || 'login',
         ]
       );
       return data;

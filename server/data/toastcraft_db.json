@@ -208,38 +208,78 @@
       "createdAt": "2026-09-19T08:22:30.468Z",
       "lastLoginAt": "2026-09-19T08:22:30.468Z",
       "verified": true
-    }
-  },
-  "otps": {
-    "23501a4203@pvpsit.ac.in": {
-      "otp": "874313",
-      "expiresAt": 1789804680574,
-      "resendAvailableAt": 1789804140574,
-      "attemptsRemaining": 5,
-      "used": true,
-      "passwordHash": "$2b$10$gaysKdDOhkryHN23DbcGCuzLgNWf2JTunuzqkKCETv883i0iCYnoC",
-      "name": "manasa",
-      "createdAt": 1789804080574,
-      "email": "23501a4203@pvpsit.ac.in"
     },
-    "manasa3082311@gmail.com": {
-      "otp": "424573",
-      "expiresAt": 1789804835151,
-      "resendAvailableAt": 1789804295151,
-      "attemptsRemaining": 5,
-      "used": false,
-      "passwordHash": "$2b$10$Xj8VwQEiPaMcyIczkglWq.V88xuct/WRyIC967nasdq5/Zz5ZFKl6",
-      "name": "x",
-      "createdAt": 1789804235151,
-      "email": "manasa3082311@gmail.com"
+    "23501a4215@pvpsit.ac.in": {
+      "id": "usr_3bb90a5c0b31c617",
+      "email": "23501a4215@pvpsit.ac.in",
+      "name": "jfv",
+      "passwordHash": "$2b$10$QEr0JQwS9dtsefkrjr8LQ./BUSaoI0you4odcSaMLmoA73qtvEWYe",
+      "createdAt": "2026-09-19T11:14:07.008Z",
+      "lastLoginAt": "2026-09-19T11:14:13.487Z",
+      "verified": true
+    },
+    "test_1789817464568@example.com": {
+      "id": "usr_test_1789817464568",
+      "email": "test_1789817464568@example.com",
+      "name": "Judge Evaluator",
+      "verified": true,
+      "createdAt": "2026-09-19T11:31:04.569Z",
+      "lastLoginAt": "2026-09-19T11:31:04.570Z"
+    },
+    "update_1789817464573@example.com": {
+      "id": "usr_update_456",
+      "email": "update_1789817464573@example.com",
+      "name": "Updated Name",
+      "verified": true,
+      "createdAt": "2026-09-19T11:31:04.573Z",
+      "lastLoginAt": "2026-09-19T11:31:04.573Z"
+    },
+    "speaker_1789817464788@example.com": {
+      "id": "usr_f92afe961a9726c6",
+      "email": "speaker_1789817464788@example.com",
+      "name": "Eleanor Vance",
+      "passwordHash": "$2b$10$MyuNGrNH54yvThzpuhSPV.3v8/aI8ByqHeOv1ypsSDisy0o8Ehx.6",
+      "createdAt": "2026-09-19T11:31:04.872Z",
+      "lastLoginAt": "2026-09-19T11:31:04.872Z",
+      "verified": true
+    },
+    "existing_1789817464952@example.com": {
+      "id": "usr_dup_123",
+      "email": "existing_1789817464952@example.com",
+      "name": "Existing Speaker",
+      "passwordHash": "$2b$10$cOur2p4KQVaPOkRj1bI0GeHwZFD96d4SE5lJeyPpcHVNUYw88cARq",
+      "createdAt": "2026-09-19T11:31:05.035Z",
+      "lastLoginAt": "2026-09-19T11:31:05.035Z",
+      "verified": true
+    },
+    "signin_test_1789817465036@example.com": {
+      "id": "usr_03ee90b865145726",
+      "email": "signin_test_1789817465036@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$rJ0TDgExnguwkoG3m/vP/u66lLF1gPSJgU4ww2lODPbgWUJVMC0Tq",
+      "createdAt": "2026-09-19T11:31:05.103Z",
+      "lastLoginAt": "2026-09-19T11:31:05.178Z",
+      "verified": true
+    },
+    "wrong_pass_1789817465184@example.com": {
+      "id": "usr_0422810db7092b65",
+      "email": "wrong_pass_1789817465184@example.com",
+      "name": "Marcus Brody",
+      "passwordHash": "$2b$10$IfP1fx1BPFb.kLQEzrf69.4740.WjGOrTdzMxLiGD5s4TSTjqVJjy",
+      "createdAt": "2026-09-19T11:31:05.256Z",
+      "lastLoginAt": "2026-09-19T11:31:05.256Z",
+      "verified": true
     }
   },
+  "otps": {},
   "rateLimits": {
     "23501a4203@pvpsit.ac.in_497167": 1,
     "manasa3082311@gmail.com_497167": 2,
     "rate_key_1789806098258": 2,
     "rate_key_1789806130007": 2,
-    "rate_key_1789806149883": 2
+    "rate_key_1789806149883": 2,
+    "23501a4215@pvpsit.ac.in_497171": 1,
+    "rate_key_1789817464576": 2
   },
   "speeches": {
     "proj-1789794778737": {
@@ -443,6 +483,18 @@
       "estimatedMinutes": 0.9,
       "createdAt": 1789806149884,
       "updatedAt": 1789806149884
+    },
+    "speech_persist_1789817464554": {
+      "id": "speech_persist_1789817464554",
+      "title": "Jack's Best Man Speech",
+      "speechType": "best_man",
+      "tone": "funny",
+      "length": "medium",
+      "content": "Good evening everyone, Dave is my best friend...",
+      "wordCount": 120,
+      "estimatedMinutes": 0.9,
+      "createdAt": 1789817464578,
+      "updatedAt": 1789817464578
     }
   },
   "speechVersions": {
@@ -504,6 +556,26 @@
         "wordCount": 65,
         "author": "user",
         "speechId": "speech_persist_1789806149872"
+      }
+    ],
+    "speech_persist_1789817464554": [
+      {
+        "id": "ver_1_1789817464579",
+        "timestamp": 1789817463579,
+        "label": "Initial Draft",
+        "content": "Draft 1 content",
+        "wordCount": 50,
+        "author": "ai",
+        "speechId": "speech_persist_1789817464554"
+      },
+      {
+        "id": "ver_2_1789817464579",
+        "timestamp": 1789817464579,
+        "label": "Manual Edit: Polished Toast",
+        "content": "Draft 2 updated content with new toast",
+        "wordCount": 65,
+        "author": "user",
+        "speechId": "speech_persist_1789817464554"
       }
     ]
   }
